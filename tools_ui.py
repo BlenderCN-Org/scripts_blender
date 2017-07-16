@@ -1,5 +1,6 @@
 import bpy
 
+
 """ Para debugar o script, execute o Blender pelo terminal. """
 
 
@@ -27,6 +28,12 @@ class ToolsPanel(bpy.types.Panel):
         row = layout.row()
         row.operator("object.remover_modificadores")
 
+        row = layout.row()
+        row.operator("object.bloquear_localizacao")
+
+        row = layout.row()
+        row.operator("object.teste")
+
 
 class RemoverModificadores(bpy.types.Operator):
     """ Operator 'Remover modificadores'
@@ -40,6 +47,36 @@ class RemoverModificadores(bpy.types.Operator):
 
     def execute(self, context):
         remove_all_modifiers(context)
+        return {'FINISHED'}
+
+
+class BloquearLocalizacao(bpy.types.Operator):
+    """ Operator 'Bloquear localização'
+    ref. a função lock_location() """
+    bl_idname = "object.bloquear_localizacao"
+    bl_label = "Bloquear localização"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        lock_location(context)
+        return {'FINISHED'}
+
+
+class Teste(bpy.types.Operator):
+    """ Operator 'teste'
+    ref. a função teste() """
+    bl_idname = "object.teste"
+    bl_label = "Teste"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        teste(context)
         return {'FINISHED'}
 
 
@@ -71,14 +108,35 @@ def remove_all_modifiers(context, obj_type='MESH'):
                                 i, cont, '' if cont == 1 else 'es', obj_type, obj.name)
 
 
+def teste(context):
+    objeto_ativo = context.active_object
+    print("Objeto ativo: {}".format(objeto_ativo))
+    print(dir(objeto_ativo))
+
+
+def lock_location(context):
+    obj = context.active_object
+    lock = not obj.lock_location[0]
+    for i in range(3):
+        context.active_object.lock_location[i] = lock
+
+    condicao = "Bloqueado" if lock else "Desbloqueado"
+
+    impressao_formatada(condicao + " localizaçao de {}", obj.name)
+
+
 # Registradores do blender para as classes de UI e Operators
 def register():
     bpy.utils.register_class(RemoverModificadores)
+    bpy.utils.register_class(BloquearLocalizacao)
+    bpy.utils.register_class(Teste)
     bpy.utils.register_class(ToolsPanel)
 
 
 def unregister():
     bpy.utils.unregister_class(RemoverModificadores)
+    bpy.utils.unregister_class(BloquearLocalizacao)
+    bpy.utils.unregister_class(Teste)
     bpy.utils.unregister_class(ToolsPanel)
 
 
