@@ -1,18 +1,6 @@
 import bpy
 
-
-class RemoverModificadores(bpy.types.Operator):
-    """ Operator 'Remover modificadores' """
-    bl_idname = "object.remover_modificadores"
-    bl_label = "Remover modificadores"
-
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
-
-    def execute(self, context):
-        remove_all_modifiers(context)
-        return {'FINISHED'}
+""" Para debugar o script, execute o Blender pelo terminal. """
 
 
 class ToolsPanel(bpy.types.Panel):
@@ -40,7 +28,26 @@ class ToolsPanel(bpy.types.Panel):
         row.operator("object.remover_modificadores")
 
 
+class RemoverModificadores(bpy.types.Operator):
+    """ Operator 'Remover modificadores'
+    ref. a função remover_all_modifiers() """
+    bl_idname = "object.remover_modificadores"
+    bl_label = "Remover modificadores"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        remove_all_modifiers(context)
+        return {'FINISHED'}
+
+
 # Funções personalizadas
+def impressao_formatada(texto, *args):
+    print(texto.format(*args))
+
+
 def get_active_scene(context):
     """ Retorna a cena ativa """
     return context.scene
@@ -53,11 +60,15 @@ def get_objects_scene(context):
 
 def remove_all_modifiers(context, obj_type='MESH'):
     """ Remove todos os modificadores de todos os objetos MESH da cena atual. """
-    for obj in get_objects_scene(context):
-        print(obj)
+    for i, obj in enumerate(get_objects_scene(context)):
         if obj.type == obj_type:
+            cont = 0
             for modifier in obj.modifiers.values():
                 obj.modifiers.remove(modifier)
+                cont += 1
+
+            impressao_formatada("[{}] Removido {} modificador{} de {} {}",
+                                i, cont, '' if cont == 1 else 'es', obj_type, obj.name)
 
 
 # Registradores do blender para as classes de UI e Operators
