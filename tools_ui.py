@@ -59,7 +59,7 @@ def get_objects_scene(context):
 
 
 def remove_all_modifiers(context, obj_type='MESH'):
-    """ Remove todos os modificadores de todos os objetos MESH da cena atual. """
+    """ Remove todos os modificadores de todos os objetos do tipo informado na cena atual. """
     for i, obj in enumerate(get_objects_scene(context)):
         if obj.type == obj_type:
             cont = 0
