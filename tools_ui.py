@@ -1,7 +1,8 @@
 import bpy
 
 
-""" Para debugar o script, execute o Blender pelo terminal. """
+""" Para debugar o script, execute o Blender pelo terminal. 
+ As docstring dos operators são visíveis como dicas(tag) blender. """
 
 
 class ToolsPanel(bpy.types.Panel):
@@ -15,12 +16,25 @@ class ToolsPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
 
+        # obtendo objeto ativo na cena
         obj = context.object
 
         row = layout.row()
         row.label(text="O objeto ativo é: " + obj.name)
+
+        row = layout.row()
+        row.label(text="Trocar:")
+        row.template_ID(get_objects_scene(context), "active")
+
+        layout.separator()
+
+        row = layout.row()
+        row.label(text="Propriedades:")
+
         row = layout.row()
         row.prop(obj, "name")
+
+        layout.separator()
 
         row = layout.row()
         row.label(text="Operadores:")
@@ -118,7 +132,7 @@ class Teste(bpy.types.Operator):
 
 # Funções personalizadas
 def impressao_formatada(texto, *args):
-    print(texto.format(*args))
+    print('SCRIPT: ' + texto.format(*args))
 
 
 def get_active_scene(context):
@@ -127,8 +141,13 @@ def get_active_scene(context):
 
 
 def get_objects_scene(context):
-    """ Retorna uma tupla com todos o objetos da cena. """
+    """ Retorna um bpy_prop_collection com todos o objetos da cena. Usar .values() para obter uma lista. """
     return get_active_scene(context).objects
+
+
+def get_list_selected_objects(context):
+    """ Retorna uma lista com todos os objetos selecionados na cena """
+    return context.selected_objects
 
 
 def remove_all_modifiers(context, obj_type='MESH'):
@@ -157,10 +176,12 @@ def teste(context):
     # location e scale estão em vector, usar
     # from mathutils import Vector
     # objeto_ativo.location += Vector((4, 0, 0))  # para incrementar
-    print(objeto_ativo.location,
-          objeto_ativo.rotation_euler,
-          objeto_ativo.scale,
-          sep='\n')
+    # print(objeto_ativo.location,
+    #       objeto_ativo.rotation_euler,
+    #       objeto_ativo.scale,
+    #       sep='\n')
+    print(dir(context))
+    print(get_list_selected_objects(context))
 
 
 def lock(context, type_operation):
@@ -175,7 +196,7 @@ def lock(context, type_operation):
         tipo = 'escala'
         operacao = obj.lock_scale
     else:
-        print('Tipo de operação inválida: {}'.format(type_operation))
+        impressao_formatada('Tipo de operação inválida: {}', type_operation)
 
     lock = not operacao[0]
     for i in range(3):
