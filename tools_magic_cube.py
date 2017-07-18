@@ -66,7 +66,7 @@ class Rotacionar90X1(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        rotate('x_1', R)
+        rotate(context, 'x_1', R)
         return {'FINISHED'}
 
 
@@ -81,7 +81,7 @@ class Rotacionar_90X1(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        rotate('x_1', -R)
+        rotate(context, 'x_1', -R)
         return {'FINISHED'}
 
 
@@ -96,7 +96,7 @@ class Rotacionar90X2(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        rotate('x_2', R)
+        rotate(context, 'x_2', R)
         return {'FINISHED'}
 
 
@@ -111,7 +111,7 @@ class Rotacionar_90X2(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        rotate('x_2', -R)
+        rotate(context, 'x_2', -R)
         return {'FINISHED'}
 
 
@@ -126,7 +126,7 @@ class Rotacionar90X3(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        rotate('x_3', R)
+        rotate(context, 'x_3', R)
         return {'FINISHED'}
 
 
@@ -141,7 +141,7 @@ class Rotacionar_90X3(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        rotate('x_3', -R)
+        rotate(context, 'x_3', -R)
         return {'FINISHED'}
 
 
@@ -157,7 +157,7 @@ class Rotacionar90Y1(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        rotate('y_1', R)
+        rotate(context, 'y_1', R)
         return {'FINISHED'}
 
 
@@ -172,7 +172,7 @@ class Rotacionar_90Y1(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        rotate('y_1', -R)
+        rotate(context, 'y_1', -R)
         return {'FINISHED'}
 
 
@@ -187,7 +187,7 @@ class Rotacionar90Y2(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        rotate('y_2', R)
+        rotate(context, 'y_2', R)
         return {'FINISHED'}
 
 
@@ -202,7 +202,7 @@ class Rotacionar_90Y2(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        rotate('y_2', -R)
+        rotate(context, 'y_2', -R)
         return {'FINISHED'}
 
 
@@ -217,7 +217,7 @@ class Rotacionar90Y3(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        rotate('y_3', R)
+        rotate(context, 'y_3', R)
         return {'FINISHED'}
 
 
@@ -232,7 +232,7 @@ class Rotacionar_90Y3(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        rotate('y_3', -R)
+        rotate(context, 'y_3', -R)
         return {'FINISHED'}
 
 
@@ -248,7 +248,7 @@ class Rotacionar90Z1(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        rotate('z_1', R)
+        rotate(context, 'z_1', R)
         return {'FINISHED'}
 
 
@@ -263,7 +263,7 @@ class Rotacionar_90Z1(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        rotate('z_1', -R)
+        rotate(context, 'z_1', -R)
         return {'FINISHED'}
 
 
@@ -278,7 +278,7 @@ class Rotacionar90Z2(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        rotate('z_2', R)
+        rotate(context, 'z_2', R)
         return {'FINISHED'}
 
 
@@ -293,7 +293,7 @@ class Rotacionar_90Z2(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        rotate('z_2', -R)
+        rotate(context, 'z_2', -R)
         return {'FINISHED'}
 
 
@@ -308,7 +308,7 @@ class Rotacionar90Z3(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        rotate('z_3', R)
+        rotate(context, 'z_3', R)
         return {'FINISHED'}
 
 
@@ -323,7 +323,7 @@ class Rotacionar_90Z3(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        rotate('z_3', -R)
+        rotate(context, 'z_3', -R)
         return {'FINISHED'}
 
 
@@ -362,8 +362,10 @@ def select_list_objects(list_objects):
         o.select = True
 
 
-def rotate(group_name, degrees):
+def rotate(context, group_name, degrees):
     """ Rotaciona os objetos do grupos informado de acordo com a quantidade de graus especificada. """
+    assign_groups(context)
+
     group_objects = get_list_group_objects(group_name)
 
     select_list_objects(group_objects)
@@ -381,6 +383,73 @@ def rotate(group_name, degrees):
     bpy.ops.object.select_all(action='DESELECT')
 
     impressao_formatada("Rotacionado {}º o grupo {}", degrees, group_name)
+
+
+def assign_groups(context):
+    """ Atribuição de grupos de acordo com location dos objetos. """
+    # base = context.scene.objects['base_cubo_magico']
+
+    # os objetos cubo_unitario... tem como pai base_cubo_magico,
+    # portando, Location e scale dos filhos são baseados no pai.
+    # posicao_base = (base.location.x, base.location.y, base.location.z)
+
+    # posições dos cubo_unitários com seus grupos respectivos
+    posicoes = {}
+
+    posicoes[(-1, 1.04, 2.54)] = ('x_1', 'y_3', 'z_3')
+    posicoes[(-1, .02, 2.54)] = ('x_1', 'y_2', 'z_3')
+    posicoes[(-1, -1, 2.54)] = ('x_1', 'y_1', 'z_3')
+    posicoes[(-1, 1.04, 1.52)] = ('x_1', 'y_3', 'z_2')
+    posicoes[(-1, .02, 1.52)] = ('x_1', 'y_2', 'z_2')
+    posicoes[(-1, -1, 1.52)] = ('x_1', 'y_1', 'z_2')
+    posicoes[(-1, 1.04, .5)] = ('x_1', 'y_3', 'z_1')
+    posicoes[(-1, .02, .5)] = ('x_1', 'y_2', 'z_1')
+    posicoes[(-1, -1, .5)] = ('x_1', 'y_1', 'z_1')
+
+    posicoes[(.02, 1.04, .5)] = ('x_2', 'y_3', 'z_1')
+    posicoes[(.02, .02, .5)] = ('x_2', 'y_2', 'z_1')
+    posicoes[(.02, -1, .5)] = ('x_2', 'y_1', 'z_1')
+    posicoes[(.02, 1.04, 1.52)] = ('x_2', 'y_3', 'z_2')
+    posicoes[(.02, -1, 1.52)] = ('x_2', 'y_1', 'z_2')
+    posicoes[(.02, 1.04, 2.54)] = ('x_2', 'y_3', 'z_3')
+    posicoes[(.02, .02, 2.54)] = ('x_2', 'y_2', 'z_3')
+    posicoes[(.02, -1, 2.54)] = ('x_2', 'y_1', 'z_3')
+
+    posicoes[(1.04, -1, 2.54)] = ('x_3', 'y_1', 'z_3')
+    posicoes[(1.04, .02, 2.54)] = ('x_3', 'y_2', 'z_3')
+    posicoes[(1.04, 1.04, 2.54)] = ('x_3', 'y_3', 'z_3')
+    posicoes[(1.04, -1, 1.52)] = ('x_3', 'y_1', 'z_2')
+    posicoes[(1.04, .02, 1.52)] = ('x_3', 'y_2', 'z_2')
+    posicoes[(1.04, 1.04, 1.52)] = ('x_3', 'y_3', 'z_2')
+    posicoes[(1.04, -1, .5)] = ('x_3', 'y_1', 'z_1')
+    posicoes[(1.04, .02, .5)] = ('x_3', 'y_2', 'z_1')
+    posicoes[(1.04, 1.04, .5)] = ('x_3', 'y_3', 'z_1')
+
+    bpy.ops.object.select_all(action='DESELECT')
+
+    # remoção de todos os grupos existentes
+    groups = bpy.data.groups
+    for group in groups.values():
+        groups.remove(group)
+
+    # criação dos grupos para movimentação
+    for l in 'xyz':
+        for n in '123':
+            groups.new('{}_{}'.format(l, n))
+
+    objects = context.scene.objects
+
+    # atribuição de grupo de acordo com coordenadas e grupo das posiçoes informadas
+    for o in objects:
+        x = round(o.location.x, 2)
+        y = round(o.location.y, 2)
+        z = round(o.location.z, 2)
+
+        for pos in posicoes.keys():
+            if x == pos[0] and y == pos[1] and z == pos[2]:
+                print('Atribuído: {}, coordenadas: {}, ao grupo: {}'.format(o, pos, posicoes[pos]))
+                for grupo in posicoes[pos]:
+                    groups[grupo].objects.link(o)
 
 
 # Registradores do blender para as classes de UI e Operators

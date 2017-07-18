@@ -1,4 +1,6 @@
 import bpy
+from time import sleep
+
 
 """ Para debugar o script, execute o Blender pelo terminal. 
  As docstring dos operators são visíveis como dicas(tag) blender. """
@@ -179,8 +181,8 @@ def teste(context):
     #       objeto_ativo.rotation_euler,
     #       objeto_ativo.scale,
     #       sep='\n')
-    print(dir(context))
-    print(get_list_selected_objects(context))
+    # print(dir(context))
+    # print(get_list_selected_objects(context))        
 
 
 def lock(context, type_operation):
