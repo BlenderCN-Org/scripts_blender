@@ -447,7 +447,7 @@ def assign_groups(context):
 
         for pos in posicoes.keys():
             if x == pos[0] and y == pos[1] and z == pos[2]:
-                print('Atribuído: {}, coordenadas: {}, ao grupo: {}'.format(o, pos, posicoes[pos]))
+                impressao_formatada('Atribuído: {}, coordenadas: {}, ao grupo: {}'.format(o, pos, posicoes[pos]))
                 for grupo in posicoes[pos]:
                     groups[grupo].objects.link(o)
 
