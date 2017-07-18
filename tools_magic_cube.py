@@ -349,10 +349,12 @@ def get_list_selected_objects(context):
 
 
 def get_list_group_objects(group_name):
+    """ Retorna uma lista de objetos referente ao grupo informado. """
     return bpy.data.groups[group_name].objects.values()
 
 
 def select_list_objects(list_objects):
+    """ Seleciona somente os objetos informados em list_objects. """
     # retirando a seleção de todos os objetos da cena
     bpy.ops.object.select_all(action='DESELECT')
 
