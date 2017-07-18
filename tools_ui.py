@@ -1,6 +1,5 @@
 import bpy
 
-
 """ Para debugar o script, execute o Blender pelo terminal. 
  As docstring dos operators são visíveis como dicas(tag) blender. """
 

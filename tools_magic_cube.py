@@ -1,7 +1,6 @@
 import bpy
 from math import radians
 
-
 # Quantidade de rotação em graus para cada movimento
 R = 90
 
