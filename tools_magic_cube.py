@@ -1,7 +1,9 @@
 import bpy
 from math import radians
 
-R = 45
+
+# Quantidade de rotação em graus para cada movimento
+R = 90
 
 
 class ToolsPanel(bpy.types.Panel):
