@@ -2,6 +2,7 @@ import bpy
 from math import radians
 
 # Quantidade de rotação em graus para cada movimento
+# default = 90, NUNCA ALTERAR.
 R = 90
 
 
@@ -59,7 +60,7 @@ class Rotacionar90X1(bpy.types.Operator):
     """ Operator 'rotate'. Rotaciona o grupo x_1 +90 graus. """
     # Ref. a função rotate()
     bl_idname = "object.rotate90x1"
-    bl_label = "+90º x_1"
+    bl_label = "+{}º x_1".format(R)
 
     @classmethod
     def poll(cls, context):
@@ -74,7 +75,7 @@ class Rotacionar_90X1(bpy.types.Operator):
     """ Operator 'rotate'. Rotaciona o grupo x_1 -90 graus. """
     # Ref. a função rotate()
     bl_idname = "object.rotate_90x1"
-    bl_label = "-90º x_1"
+    bl_label = "-{}º x_1".format(R)
 
     @classmethod
     def poll(cls, context):
@@ -89,7 +90,7 @@ class Rotacionar90X2(bpy.types.Operator):
     """ Operator 'rotate'. Rotaciona o grupo x_2 +90 graus. """
     # Ref. a função rotate()
     bl_idname = "object.rotate90x2"
-    bl_label = "+90º x_2"
+    bl_label = "+{}º x_2".format(R)
 
     @classmethod
     def poll(cls, context):
@@ -104,7 +105,7 @@ class Rotacionar_90X2(bpy.types.Operator):
     """ Operator 'rotate'. Rotaciona o grupo x_2 -90 graus. """
     # Ref. a função rotate()
     bl_idname = "object.rotate_90x2"
-    bl_label = "-90º x_2"
+    bl_label = "-{}º x_2".format(R)
 
     @classmethod
     def poll(cls, context):
@@ -119,7 +120,7 @@ class Rotacionar90X3(bpy.types.Operator):
     """ Operator 'rotate'. Rotaciona o grupo x_3 +90 graus. """
     # Ref. a função rotate()
     bl_idname = "object.rotate90x3"
-    bl_label = "+90º x_3"
+    bl_label = "+{}º x_3".format(R)
 
     @classmethod
     def poll(cls, context):
@@ -134,7 +135,7 @@ class Rotacionar_90X3(bpy.types.Operator):
     """ Operator 'rotate'. Rotaciona o grupo x_3 -90 graus. """
     # Ref. a função rotate()
     bl_idname = "object.rotate_90x3"
-    bl_label = "-90º x_3"
+    bl_label = "-{}º x_3".format(R)
 
     @classmethod
     def poll(cls, context):
@@ -150,7 +151,7 @@ class Rotacionar90Y1(bpy.types.Operator):
     """ Operator 'rotate'. Rotaciona o grupo y_1 +90 graus. """
     # Ref. a função rotate()
     bl_idname = "object.rotate90y1"
-    bl_label = "+90º y_1"
+    bl_label = "+{}º y_1".format(R)
 
     @classmethod
     def poll(cls, context):
@@ -165,7 +166,7 @@ class Rotacionar_90Y1(bpy.types.Operator):
     """ Operator 'rotate'. Rotaciona o grupo y_1 -90 graus. """
     # Ref. a função rotate()
     bl_idname = "object.rotate_90y1"
-    bl_label = "-90º y_1"
+    bl_label = "-{}º y_1".format(R)
 
     @classmethod
     def poll(cls, context):
@@ -180,7 +181,7 @@ class Rotacionar90Y2(bpy.types.Operator):
     """ Operator 'rotate'. Rotaciona o grupo y_2 +90 graus. """
     # Ref. a função rotate()
     bl_idname = "object.rotate90y2"
-    bl_label = "+90º y_2"
+    bl_label = "+{}º y_2".format(R)
 
     @classmethod
     def poll(cls, context):
@@ -195,7 +196,7 @@ class Rotacionar_90Y2(bpy.types.Operator):
     """ Operator 'rotate'. Rotaciona o grupo y_2 -90 graus. """
     # Ref. a função rotate()
     bl_idname = "object.rotate_90y2"
-    bl_label = "-90º y_2"
+    bl_label = "-{}º y_2".format(R)
 
     @classmethod
     def poll(cls, context):
@@ -210,7 +211,7 @@ class Rotacionar90Y3(bpy.types.Operator):
     """ Operator 'rotate'. Rotaciona o grupo y_3 +90 graus. """
     # Ref. a função rotate()
     bl_idname = "object.rotate90y3"
-    bl_label = "+90º y_3"
+    bl_label = "+{}º y_3".format(R)
 
     @classmethod
     def poll(cls, context):
@@ -225,7 +226,7 @@ class Rotacionar_90Y3(bpy.types.Operator):
     """ Operator 'rotate'. Rotaciona o grupo y_3 -90 graus. """
     # Ref. a função rotate()
     bl_idname = "object.rotate_90y3"
-    bl_label = "-90º y_3"
+    bl_label = "-{}º y_3".format(R)
 
     @classmethod
     def poll(cls, context):
@@ -241,7 +242,7 @@ class Rotacionar90Z1(bpy.types.Operator):
     """ Operator 'rotate'. Rotaciona o grupo z_1 +90 graus. """
     # Ref. a função rotate()
     bl_idname = "object.rotate90z1"
-    bl_label = "+90º z_1"
+    bl_label = "+{}º z_1".format(R)
 
     @classmethod
     def poll(cls, context):
@@ -256,7 +257,7 @@ class Rotacionar_90Z1(bpy.types.Operator):
     """ Operator 'rotate'. Rotaciona o grupo z_1 -90 graus. """
     # Ref. a função rotate()
     bl_idname = "object.rotate_90z1"
-    bl_label = "-90º z_1"
+    bl_label = "-{}º z_1".format(R)
 
     @classmethod
     def poll(cls, context):
@@ -271,7 +272,7 @@ class Rotacionar90Z2(bpy.types.Operator):
     """ Operator 'rotate'. Rotaciona o grupo z_2 +90 graus. """
     # Ref. a função rotate()
     bl_idname = "object.rotate90z2"
-    bl_label = "+90º z_2"
+    bl_label = "+{}º z_2".format(R)
 
     @classmethod
     def poll(cls, context):
@@ -286,7 +287,7 @@ class Rotacionar_90Z2(bpy.types.Operator):
     """ Operator 'rotate'. Rotaciona o grupo z_2 -90 graus. """
     # Ref. a função rotate()
     bl_idname = "object.rotate_90z2"
-    bl_label = "-90º z_2"
+    bl_label = "-{}º z_2".format(R)
 
     @classmethod
     def poll(cls, context):
@@ -301,7 +302,7 @@ class Rotacionar90Z3(bpy.types.Operator):
     """ Operator 'rotate'. Rotaciona o grupo z_3 +90 graus. """
     # Ref. a função rotate()
     bl_idname = "object.rotate90z3"
-    bl_label = "+90º z_3"
+    bl_label = "+{}º z_3".format(R)
 
     @classmethod
     def poll(cls, context):
@@ -316,7 +317,7 @@ class Rotacionar_90Z3(bpy.types.Operator):
     """ Operator 'rotate'. Rotaciona o grupo z_3 -90 graus. """
     # Ref. a função rotate()
     bl_idname = "object.rotate_90z3"
-    bl_label = "-90º z_3"
+    bl_label = "-{}º z_3".format(R)
 
     @classmethod
     def poll(cls, context):
