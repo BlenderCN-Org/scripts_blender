@@ -1,4 +1,5 @@
 import bpy
+from pyasn1.type import constraint
 
 """ Para debugar o script, execute o Blender pelo terminal. 
  As docstring dos operators são visíveis como dicas(tag) blender. """
@@ -25,10 +26,11 @@ class ToolsPanel(bpy.types.Panel):
         row.label(text="Trocar:")
         row.template_ID(get_objects_scene(context), "active")
 
+        # OBJECT PROPERTIES
         layout.separator()
 
         row = layout.row()
-        row.label(text="PROPRIEDADES DO OBJ ATIVO")
+        row.label(text="PROPRIEDADES DO OBJETO ATIVO")
 
         split = layout.split(percentage=0.70)
 
@@ -50,6 +52,7 @@ class ToolsPanel(bpy.types.Panel):
         row = layout.row()
         row.prop(obj, "parent", text="Pai")
 
+        # GROUPS
         row = layout.row()
         row.label(text="Grupos")
 
@@ -61,14 +64,17 @@ class ToolsPanel(bpy.types.Panel):
         row.operator("object.group_add", text="", icon='ZOOMIN')
 
         col = layout.column(align=True)
-        row = col.box().row()
 
-        for group in bpy.data.groups:
-            if obj.name in group.objects:
-                row.context_pointer_set("group", group)
-                row.prop(group, "name", text="")
-                row.operator("object.group_remove", text="", icon='X', emboss=False)
+        if obj.users_group:
+            row = col.box().row()
 
+            for group in bpy.data.groups:
+                if obj.name in group.objects:
+                    row.context_pointer_set("group", group)
+                    row.prop(group, "name", text="")
+                    row.operator("object.group_remove", text="", icon='X', emboss=False)
+
+        # MODIFIERS
         layout.separator()
 
         row = layout.row()
@@ -82,6 +88,21 @@ class ToolsPanel(bpy.types.Panel):
 
         row = layout.row()
         row.operator("object.copiar_modificadores")
+
+        # CONSTRAINTS
+        layout.separator()
+
+        row = layout.row()
+        row.label(text="LIMITAÇÕES(CONSTRAINTS)")
+
+        row = layout.row(align=True)
+        row.label(text="Remover")
+        row.operator("object.remover_limitacoes")
+        row.operator("object.remover_limitacoes_ativo")
+        row.operator("object.remover_limitacoes_selecionados")
+
+        row = layout.row()
+        row.operator("object.copiar_limitacoes")
 
         layout.separator()
 
@@ -101,7 +122,8 @@ class ToolsPanel(bpy.types.Panel):
 
 
 class RemoverModificadores(bpy.types.Operator):
-    """ Operator 'Remover modificadores'. Remove todos os modificadores de todos os objetos MESH da cena. """
+    """ Operator 'Remover modificadores'.
+    Remove todos os modificadores de todos os objetos MESH da cena. """
     # ref. a função remover_all_modifiers()
     bl_idname = "object.remover_modificadores"
     bl_label = "TODOS"
@@ -116,7 +138,8 @@ class RemoverModificadores(bpy.types.Operator):
 
 
 class RemoverModificadoresAtivo(bpy.types.Operator):
-    """ Operator 'Remover modificadores de ativo'. Remove todos os modificadores do objeto MESH ativo na cena. """
+    """ Operator 'Remover modificadores de ativo'.
+    Remove todos os modificadores do objeto MESH ativo na cena. """
     # ref. a função remover_all_modifiers_ativo()
     bl_idname = "object.remover_modificadores_ativo"
     bl_label = "ATIVO"
@@ -126,12 +149,13 @@ class RemoverModificadoresAtivo(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        remove_all_modifiers_ativo(context)
+        remove_all_modifiers_active(context)
         return {'FINISHED'}
 
 
 class RemoverModificadoresSelecionados(bpy.types.Operator):
-    """ Operator 'Remover modificadores de selecionados'. Remove todos os modificadores dos objetos MESH selecionados na cena. """
+    """ Operator 'Remover modificadores de selecionados'.
+    Remove todos os modificadores dos objetos MESH selecionados na cena. """
     # ref. a função remover_all_modifiers()
     bl_idname = "object.remover_modificadores_selecionados"
     bl_label = "SELECIONADOS"
@@ -141,7 +165,55 @@ class RemoverModificadoresSelecionados(bpy.types.Operator):
         return bool(context.selected_objects)
 
     def execute(self, context):
-        remove_all_modifiers_selecionados(context)
+        remove_all_modifiers_selected(context)
+        return {'FINISHED'}
+
+
+class RemoverLimitacoes(bpy.types.Operator):
+    """ Operator 'Remover limitacoes'.
+    Remove todos as limitações(constraints) de todos os objetos da cena. """
+    # ref. a função remover_all_constraints()
+    bl_idname = "object.remover_limitacoes"
+    bl_label = "TODOS"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        remove_all_constraints(context)
+        return {'FINISHED'}
+
+
+class RemoverLimitacoesAtivo(bpy.types.Operator):
+    """ Operator 'Remover limitações de ativo'.
+    Remove todos as limitações(constraints) do objeto ativo na cena. """
+    # ref. a função remover_all_constraints_ativo()
+    bl_idname = "object.remover_limitacoes_ativo"
+    bl_label = "ATIVO"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        remove_all_constraints_active(context)
+        return {'FINISHED'}
+
+
+class RemoverLimitacoesSelecionados(bpy.types.Operator):
+    """ Operator 'Remover limitações de selecionados'.
+    Remove todos as limitações(constraints) dos objetos selecionados na cena. """
+    # ref. a função remover_all_constraints_selecionados()
+    bl_idname = "object.remover_limitacoes_selecionados"
+    bl_label = "SELECIONADOS"
+
+    @classmethod
+    def poll(cls, context):
+        return bool(context.selected_objects)
+
+    def execute(self, context):
+        remove_all_constraints_selected(context)
         return {'FINISHED'}
 
 
@@ -209,6 +281,22 @@ class CopiarModificadores(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class CopiarLimitacoes(bpy.types.Operator):
+    """ Operator 'Copiar limitacoes'.
+    Copia todos as limitações(constraints) do objeto ativo para todos os objetos selecionados da cena. """
+    # ref. a função copy_all_constraints()
+    bl_idname = "object.copiar_limitacoes"
+    bl_label = "Copiar limitações"
+
+    @classmethod
+    def poll(cls, context):
+        return bool(context.selected_objects)
+
+    def execute(self, context):
+        copy_all_constraints(context)
+        return {'FINISHED'}
+
+
 class Teste(bpy.types.Operator):
     """ Operator 'teste'. Teste de funções. """
     # ref. a função teste()
@@ -271,17 +359,46 @@ def remove_all_modifiers(context, obj_type='MESH', objects=None):
                                 i, cont, '' if cont == 1 else 'es', obj_type, obj.name)
 
 
-def remove_all_modifiers_ativo(context, obj_type='MESH'):
+def remove_all_modifiers_active(context, obj_type='MESH'):
     """ Remove todos os modificadores do objeto ativo do tipo informado na cena atual. """
     # o objeto ativo deve ser informado em uma lista por causa o enumarate de remove_all_modifiers
     objeto_ativo = [get_active_object(context)]
     remove_all_modifiers(context, obj_type=obj_type, objects=objeto_ativo)
 
 
-def remove_all_modifiers_selecionados(context, obj_type='MESH'):
+def remove_all_modifiers_selected(context, obj_type='MESH'):
     """ Remove todos os modificadores dos objetos selecionados do tipo informado na cena atual. """
     objeto_selecionado = get_selected_objects(context)
     remove_all_modifiers(context, obj_type=obj_type, objects=objeto_selecionado)
+
+
+def remove_all_constraints(context, objects=None):
+    """ Remove todos os limitaçoes de todos os objetos do tipo informado na cena atual. """
+
+    if objects is None:
+        objects = get_objects_scene(context)
+
+    for i, obj in enumerate(objects):
+        cont = 0
+        for constraint in obj.constraints.values():
+            obj.constraints.remove(constraint)
+            cont += 1
+
+        impressao_formatada("[{}] Removido {} limitaç{} de {} {}",
+                            i, cont, 'ão' if cont == 1 else 'ões', obj.type, obj.name)
+
+
+def remove_all_constraints_active(context):
+    """ Remove todos os limitações do objeto ativo do tipo informado na cena atual. """
+    # o objeto ativo deve ser informado em uma lista por causa o enumarate de remove_all_constraints
+    objeto_ativo = [get_active_object(context)]
+    remove_all_constraints(context, objects=objeto_ativo)
+
+
+def remove_all_constraints_selected(context):
+    """ Remove todos os limitações dos objetos selecionados do tipo informado na cena atual. """
+    objeto_selecionado = get_selected_objects(context)
+    remove_all_constraints(context, objects=objeto_selecionado)
 
 
 def copy_all_modifiers(context, obj_type='MESH'):
@@ -299,6 +416,22 @@ def copy_all_modifiers(context, obj_type='MESH'):
 
             impressao_formatada("[{}] Copiado de {} {} modificador{} de {} {}",
                                 i, ativo.name, cont, '' if cont == 1 else 'es', obj_type, obj.name)
+
+
+def copy_all_constraints(context):
+    """ Copia todos as limitações do objeto ativo para os objetos selecionados. """
+    ativo = get_active_object(context)
+    selecionados = get_selected_objects(context)
+    selecionados.remove(ativo)
+
+    for i, obj in enumerate(selecionados):
+        cont = 0
+        for constraint in ativo.constraints.values():
+            obj.constraints.new(constraint.type)
+            cont += 1
+
+        impressao_formatada("[{}] Copiado de {} {} limitaç{} de {} {}",
+                            i, ativo.name, cont, 'ão' if cont == 1 else 'ões', obj.type, obj.name)
 
 
 def teste(context):
@@ -359,6 +492,10 @@ def register():
     bpy.utils.register_class(RemoverModificadoresAtivo)
     bpy.utils.register_class(RemoverModificadoresSelecionados)
     bpy.utils.register_class(CopiarModificadores)
+    bpy.utils.register_class(RemoverLimitacoes)
+    bpy.utils.register_class(RemoverLimitacoesAtivo)
+    bpy.utils.register_class(RemoverLimitacoesSelecionados)
+    bpy.utils.register_class(CopiarLimitacoes)
     bpy.utils.register_class(BloquearLocalizacao)
     bpy.utils.register_class(BloquearRotacao)
     bpy.utils.register_class(BloquearEscala)
@@ -371,6 +508,10 @@ def unregister():
     bpy.utils.unregister_class(RemoverModificadoresAtivo)
     bpy.utils.unregister_class(RemoverModificadoresSelecionados)
     bpy.utils.unregister_class(CopiarModificadores)
+    bpy.utils.unregister_class(RemoverLimitacoes)
+    bpy.utils.unregister_class(RemoverLimitacoesAtivo)
+    bpy.utils.unregister_class(RemoverLimitacoesSelecionados)
+    bpy.utils.unregister_class(CopiarLimitacoes)
     bpy.utils.unregister_class(BloquearLocalizacao)
     bpy.utils.unregister_class(BloquearRotacao)
     bpy.utils.unregister_class(BloquearEscala)
