@@ -1,5 +1,4 @@
 import bpy
-from time import sleep
 
 """ Para debugar o script, execute o Blender pelo terminal. 
  As docstring dos operators são visíveis como dicas(tag) blender. """
@@ -29,10 +28,23 @@ class ToolsPanel(bpy.types.Panel):
         layout.separator()
 
         row = layout.row()
-        row.label(text="Propriedades:")
+        row.label(text="PROPRIEDADES DO OBJ ATIVO")
+
+        split = layout.split(percentage=0.70)
+
+        row = split.row()
+        row.prop(obj, "name")
+
+        row = split.row()
+        row.prop(obj, "color")
+
+        row = layout.row(align=True)
+        row.prop(obj, "hide")
+        row.prop(obj, "hide_select")
+        row.prop(obj, "hide_render")
 
         row = layout.row()
-        row.prop(obj, "name")
+        row.prop(obj, "select")
 
         layout.separator()
 
@@ -51,10 +63,10 @@ class ToolsPanel(bpy.types.Panel):
         layout.separator()
 
         row = layout.row()
-        row.label(text="BLOQUEAR")
+        row.label(text="BLOQUEAR/DESBLOQUEAR")
 
         row = layout.row(align=True)
-        row.label(text="Ativo")
+        row.label(text="Selecionados")
         row.operator("object.bloquear_localizacao")
         row.operator("object.bloquear_rotacao")
         row.operator("object.bloquear_escala")
@@ -103,7 +115,7 @@ class RemoverModificadoresSelecionados(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.active_object is not None
+        return bool(context.selected_objects)
 
     def execute(self, context):
         remove_all_modifiers_selecionados(context)
@@ -111,14 +123,15 @@ class RemoverModificadoresSelecionados(bpy.types.Operator):
 
 
 class BloquearLocalizacao(bpy.types.Operator):
-    """ Operator 'Bloquear localização'. Bloqueia todos os eixos de localização do objeto ativo. """
+    """ Operator 'Bloquear localização'.
+    Bloqueia todos os eixos de localização do objeto selecionado baseado no ativo. """
     # Ref. a função lock()
     bl_idname = "object.bloquear_localizacao"
     bl_label = "Location"
 
     @classmethod
     def poll(cls, context):
-        return context.active_object is not None
+        return bool(context.selected_objects)
 
     def execute(self, context):
         lock(context, 'location')
@@ -126,14 +139,15 @@ class BloquearLocalizacao(bpy.types.Operator):
 
 
 class BloquearRotacao(bpy.types.Operator):
-    """ Operator 'Bloquear rotação'. Bloqueia todos os eixos de rotação do objeto ativo. """
+    """ Operator 'Bloquear rotação'.
+    Bloqueia todos os eixos de rotação do objeto selecionado baseado no ativo. """
     # Ref. a função lock()
     bl_idname = "object.bloquear_rotacao"
     bl_label = "Rotation"
 
     @classmethod
     def poll(cls, context):
-        return context.active_object is not None
+        return bool(context.selected_objects)
 
     def execute(self, context):
         lock(context, 'rotation')
@@ -141,14 +155,15 @@ class BloquearRotacao(bpy.types.Operator):
 
 
 class BloquearEscala(bpy.types.Operator):
-    """ Operator 'Bloquear escala'. Bloqueia todos os eixos de escala do objeto ativo. """
+    """ Operator 'Bloquear escala'.
+    Bloqueia todos os eixos de escala do objeto selecionado baseado no ativo. """
     # Ref. a função lock_location()
     bl_idname = "object.bloquear_escala"
     bl_label = "Scale"
 
     @classmethod
     def poll(cls, context):
-        return context.active_object is not None
+        return bool(context.selected_objects)
 
     def execute(self, context):
         lock(context, 'scale')
@@ -164,7 +179,7 @@ class CopiarModificadores(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.active_object is not None
+        return bool(context.selected_objects)
 
     def execute(self, context):
         copy_all_modifiers(context)
@@ -202,10 +217,12 @@ def get_objects_scene(context):
 
 
 def get_active_object(context):
+    """ Retorna o objeto ativo de acordo com contexto informado. """
     return context.active_object
 
 
 def get_selected_objects(context):
+    """ Retorna uma lista de objetos de acordo com contexto informado. """
     return context.selected_objects
 
 
@@ -283,29 +300,34 @@ def teste(context):
 
 
 def lock(context, type_operation):
-    obj = context.active_object
-    tipo = ''
-    operacao = False
+    """ Bloqueia/desbloqueia location/rotation/scale de objetos selecionados de acordo com estado de objeto ativo. """
+    for i, obj in enumerate(get_selected_objects(context)):
+        tipo = ''
+        operacao = False
+        condicao_ativo = False
 
-    if type_operation == 'location':
-        tipo = 'localizacao'
-        operacao = obj.lock_location
-    elif type_operation == 'rotation':
-        tipo = 'rotação'
-        operacao = obj.lock_rotation
-    elif type_operation == 'scale':
-        tipo = 'escala'
-        operacao = obj.lock_scale
-    else:
-        impressao_formatada('Tipo de operação inválida: {}', type_operation)
+        if type_operation == 'location':
+            tipo = 'localizacao'
+            operacao = obj.lock_location
+            condicao_ativo = get_active_object(context).lock_location
+        elif type_operation == 'rotation':
+            tipo = 'rotação'
+            operacao = obj.lock_rotation
+            condicao_ativo = get_active_object(context).lock_rotation
+        elif type_operation == 'scale':
+            tipo = 'escala'
+            operacao = obj.lock_scale
+            condicao_ativo = get_active_object(context).lock_scale
+        else:
+            impressao_formatada('Tipo de operação inválida: {}', type_operation)
 
-    lock = not operacao[0]
-    for i in range(3):
-        operacao[i] = lock
+        lock = not condicao_ativo[0]
+        for j in range(3):
+            operacao[j] = lock
 
-    condicao = "Bloqueado " if lock else "Desbloqueado "
+        condicao = "Bloqueado" if lock else "Desbloqueado"
 
-    impressao_formatada(condicao + tipo + " de {}", obj.name)
+        impressao_formatada("[{}] {} {} de {}", i, condicao, tipo, obj.name)
 
 
 # Registradores do blender para as classes de UI e Operators
