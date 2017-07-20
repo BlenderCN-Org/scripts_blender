@@ -39,7 +39,7 @@ class ToolsPanel(bpy.types.Panel):
         row = layout.row()
         row.label(text="MODIFICADORES")
 
-        row = layout.row()
+        row = layout.row(align=True)
         row.label(text="Remover")
         row.operator("object.remover_modificadores")
         row.operator("object.remover_modificadores_ativo")
@@ -51,9 +51,10 @@ class ToolsPanel(bpy.types.Panel):
         layout.separator()
 
         row = layout.row()
-        row.label(text="Bloquear ativo:")
+        row.label(text="BLOQUEAR")
 
-        # row = layout.row()
+        row = layout.row(align=True)
+        row.label(text="Ativo")
         row.operator("object.bloquear_localizacao")
         row.operator("object.bloquear_rotacao")
         row.operator("object.bloquear_escala")
@@ -159,7 +160,7 @@ class CopiarModificadores(bpy.types.Operator):
     Copia todos os modificadores do objeto ativo para todos os objetos MESH selecionados da cena. """
     # ref. a função copy_all_modifiers()
     bl_idname = "object.copiar_modificadores"
-    bl_label = "Copiar"
+    bl_label = "Copiar modificadores"
 
     @classmethod
     def poll(cls, context):
@@ -256,8 +257,8 @@ def copy_all_modifiers(context, obj_type='MESH'):
                 obj.modifiers.new(modifier.name, modifier.type)
                 cont += 1
 
-            impressao_formatada("[{}] Adicionado {} modificador{} de {} {}",
-                                i, cont, '' if cont == 1 else 'es', obj_type, obj.name)
+            impressao_formatada("[{}] Copiado de {} {} modificador{} de {} {}",
+                                i, ativo.name, cont, '' if cont == 1 else 'es', obj_type, obj.name)
 
 
 def teste(context):
