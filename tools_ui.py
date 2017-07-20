@@ -33,18 +33,41 @@ class ToolsPanel(bpy.types.Panel):
         split = layout.split(percentage=0.70)
 
         row = split.row()
-        row.prop(obj, "name")
+        row.prop(obj, "name", text="Nome")
 
         row = split.row()
-        row.prop(obj, "color")
+        row.prop(obj, "select", text="Selecionar")
 
         row = layout.row(align=True)
-        row.prop(obj, "hide")
-        row.prop(obj, "hide_select")
-        row.prop(obj, "hide_render")
+        row.prop(obj, "hide", text="View")
+        row.prop(obj, "hide_select", text="Seleção")
+        row.prop(obj, "hide_render", text="Render")
 
         row = layout.row()
-        row.prop(obj, "select")
+        row.prop(obj, "color", text="Cor")
+        row.prop(obj, "active_material", text="Material")
+
+        row = layout.row()
+        row.prop(obj, "parent", text="Pai")
+
+        row = layout.row()
+        row.label(text="Grupos")
+
+        row = layout.row(align=True)
+        if bpy.data.groups:
+            row.operator("object.group_link", text="Adicionar ao Grupo")
+        else:
+            row.operator("object.group_add", text="Adicionar ao Grupo")
+        row.operator("object.group_add", text="", icon='ZOOMIN')
+
+        col = layout.column(align=True)
+        row = col.box().row()
+
+        for group in bpy.data.groups:
+            if obj.name in group.objects:
+                row.context_pointer_set("group", group)
+                row.prop(group, "name", text="")
+                row.operator("object.group_remove", text="", icon='X', emboss=False)
 
         layout.separator()
 
