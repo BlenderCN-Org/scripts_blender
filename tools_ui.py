@@ -38,19 +38,24 @@ class ToolsPanel(bpy.types.Panel):
         layout.separator()
 
         row = layout.row()
-        row.label(text="Operadores:")
+        row.label(text="Remover modificadores:")
 
         row = layout.row()
         row.operator("object.remover_modificadores")
+        row.operator("object.remover_modificadores_ativo")
+        row.operator("object.remover_modificadores_selecionados")
+
+        layout.separator()
+
+        row = layout.row()
+        row.label(text="Bloquear ativo:")
 
         row = layout.row()
         row.operator("object.bloquear_localizacao")
-
-        row = layout.row()
         row.operator("object.bloquear_rotacao")
-
-        row = layout.row()
         row.operator("object.bloquear_escala")
+
+        layout.separator()
 
         row = layout.row()
         row.operator("object.teste")
@@ -60,7 +65,7 @@ class RemoverModificadores(bpy.types.Operator):
     """ Operator 'Remover modificadores'. Remove todos os modificadores de todos os objetos MESH da cena. """
     # ref. a função remover_all_modifiers()
     bl_idname = "object.remover_modificadores"
-    bl_label = "Remover modificadores"
+    bl_label = "TODOS"
 
     @classmethod
     def poll(cls, context):
@@ -71,11 +76,41 @@ class RemoverModificadores(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class RemoverModificadoresAtivo(bpy.types.Operator):
+    """ Operator 'Remover modificadores de ativo'. Remove todos os modificadores do objeto MESH ativo na cena. """
+    # ref. a função remover_all_modifiers_ativo()
+    bl_idname = "object.remover_modificadores_ativo"
+    bl_label = "ATIVO"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        remove_all_modifiers_ativo(context)
+        return {'FINISHED'}
+
+
+class RemoverModificadoresSelecionados(bpy.types.Operator):
+    """ Operator 'Remover modificadores de selecionados'. Remove todos os modificadores dos objetos MESH selecionados na cena. """
+    # ref. a função remover_all_modifiers()
+    bl_idname = "object.remover_modificadores_selecionados"
+    bl_label = "SELECIONADOS"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        remove_all_modifiers_selecionados(context)
+        return {'FINISHED'}
+
+
 class BloquearLocalizacao(bpy.types.Operator):
     """ Operator 'Bloquear localização'. Bloqueia todos os eixos de localização do objeto ativo. """
     # Ref. a função lock()
     bl_idname = "object.bloquear_localizacao"
-    bl_label = "Bloquear localização"
+    bl_label = "Location"
 
     @classmethod
     def poll(cls, context):
@@ -90,7 +125,7 @@ class BloquearRotacao(bpy.types.Operator):
     """ Operator 'Bloquear rotação'. Bloqueia todos os eixos de rotação do objeto ativo. """
     # Ref. a função lock()
     bl_idname = "object.bloquear_rotacao"
-    bl_label = "Bloquear rotação"
+    bl_label = "Rotation"
 
     @classmethod
     def poll(cls, context):
@@ -105,7 +140,7 @@ class BloquearEscala(bpy.types.Operator):
     """ Operator 'Bloquear escala'. Bloqueia todos os eixos de escala do objeto ativo. """
     # Ref. a função lock_location()
     bl_idname = "object.bloquear_escala"
-    bl_label = "Bloquear escala"
+    bl_label = "Scale"
 
     @classmethod
     def poll(cls, context):
@@ -151,9 +186,13 @@ def get_list_selected_objects(context):
     return context.selected_objects
 
 
-def remove_all_modifiers(context, obj_type='MESH'):
+def remove_all_modifiers(context, obj_type='MESH', objects=None):
     """ Remove todos os modificadores de todos os objetos do tipo informado na cena atual. """
-    for i, obj in enumerate(get_objects_scene(context)):
+
+    if objects is None:
+        objects = get_objects_scene(context)
+
+    for i, obj in enumerate(objects):
         if obj.type == obj_type:
             cont = 0
             for modifier in obj.modifiers.values():
@@ -162,6 +201,19 @@ def remove_all_modifiers(context, obj_type='MESH'):
 
             impressao_formatada("[{}] Removido {} modificador{} de {} {}",
                                 i, cont, '' if cont == 1 else 'es', obj_type, obj.name)
+
+
+def remove_all_modifiers_ativo(context, obj_type='MESH'):
+    """ Remove todos os modificadores do objeto ativo do tipo informado na cena atual. """
+    # o objeto ativo deve ser informado em uma lista por causa o enumarate de remove_all_modifiers
+    objeto_ativo = [context.active_object]
+    remove_all_modifiers(context, obj_type=obj_type, objects=objeto_ativo)
+
+
+def remove_all_modifiers_selecionados(context, obj_type='MESH'):
+    """ Remove todos os modificadores dos objetos selecionados do tipo informado na cena atual. """
+    objeto_selecionado = context.selected_objects
+    remove_all_modifiers(context, obj_type=obj_type, objects=objeto_selecionado)
 
 
 def teste(context):
@@ -211,6 +263,8 @@ def lock(context, type_operation):
 # Registradores do blender para as classes de UI e Operators
 def register():
     bpy.utils.register_class(RemoverModificadores)
+    bpy.utils.register_class(RemoverModificadoresAtivo)
+    bpy.utils.register_class(RemoverModificadoresSelecionados)
     bpy.utils.register_class(BloquearLocalizacao)
     bpy.utils.register_class(BloquearRotacao)
     bpy.utils.register_class(BloquearEscala)
@@ -220,6 +274,8 @@ def register():
 
 def unregister():
     bpy.utils.unregister_class(RemoverModificadores)
+    bpy.utils.unregister_class(RemoverModificadoresAtivo)
+    bpy.utils.unregister_class(RemoverModificadoresSelecionados)
     bpy.utils.unregister_class(BloquearLocalizacao)
     bpy.utils.unregister_class(BloquearRotacao)
     bpy.utils.unregister_class(BloquearEscala)
