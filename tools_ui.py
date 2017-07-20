@@ -1,7 +1,6 @@
 import bpy
 from time import sleep
 
-
 """ Para debugar o script, execute o Blender pelo terminal. 
  As docstring dos operators são visíveis como dicas(tag) blender. """
 
@@ -38,19 +37,23 @@ class ToolsPanel(bpy.types.Panel):
         layout.separator()
 
         row = layout.row()
-        row.label(text="Remover modificadores:")
+        row.label(text="MODIFICADORES")
 
         row = layout.row()
+        row.label(text="Remover")
         row.operator("object.remover_modificadores")
         row.operator("object.remover_modificadores_ativo")
         row.operator("object.remover_modificadores_selecionados")
+
+        row = layout.row()
+        row.operator("object.copiar_modificadores")
 
         layout.separator()
 
         row = layout.row()
         row.label(text="Bloquear ativo:")
 
-        row = layout.row()
+        # row = layout.row()
         row.operator("object.bloquear_localizacao")
         row.operator("object.bloquear_rotacao")
         row.operator("object.bloquear_escala")
@@ -151,6 +154,22 @@ class BloquearEscala(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class CopiarModificadores(bpy.types.Operator):
+    """ Operator 'Copiar modificadores'.
+    Copia todos os modificadores do objeto ativo para todos os objetos MESH selecionados da cena. """
+    # ref. a função copy_all_modifiers()
+    bl_idname = "object.copiar_modificadores"
+    bl_label = "Copiar"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        copy_all_modifiers(context)
+        return {'FINISHED'}
+
+
 class Teste(bpy.types.Operator):
     """ Operator 'teste'. Teste de funções. """
     # ref. a função teste()
@@ -181,6 +200,14 @@ def get_objects_scene(context):
     return get_active_scene(context).objects
 
 
+def get_active_object(context):
+    return context.active_object
+
+
+def get_selected_objects(context):
+    return context.selected_objects
+
+
 def get_list_selected_objects(context):
     """ Retorna uma lista com todos os objetos selecionados na cena """
     return context.selected_objects
@@ -206,14 +233,31 @@ def remove_all_modifiers(context, obj_type='MESH', objects=None):
 def remove_all_modifiers_ativo(context, obj_type='MESH'):
     """ Remove todos os modificadores do objeto ativo do tipo informado na cena atual. """
     # o objeto ativo deve ser informado em uma lista por causa o enumarate de remove_all_modifiers
-    objeto_ativo = [context.active_object]
+    objeto_ativo = [get_active_object(context)]
     remove_all_modifiers(context, obj_type=obj_type, objects=objeto_ativo)
 
 
 def remove_all_modifiers_selecionados(context, obj_type='MESH'):
     """ Remove todos os modificadores dos objetos selecionados do tipo informado na cena atual. """
-    objeto_selecionado = context.selected_objects
+    objeto_selecionado = get_selected_objects(context)
     remove_all_modifiers(context, obj_type=obj_type, objects=objeto_selecionado)
+
+
+def copy_all_modifiers(context, obj_type='MESH'):
+    """ Copia todos os modificadores do objeto ativo para os objetos selecionados. """
+    ativo = get_active_object(context)
+    selecionados = get_selected_objects(context)
+    selecionados.remove(ativo)
+
+    for i, obj in enumerate(selecionados):
+        if obj.type == obj_type:
+            cont = 0
+            for modifier in ativo.modifiers.values():
+                obj.modifiers.new(modifier.name, modifier.type)
+                cont += 1
+
+            impressao_formatada("[{}] Adicionado {} modificador{} de {} {}",
+                                i, cont, '' if cont == 1 else 'es', obj_type, obj.name)
 
 
 def teste(context):
@@ -239,6 +283,9 @@ def teste(context):
 
 def lock(context, type_operation):
     obj = context.active_object
+    tipo = ''
+    operacao = False
+
     if type_operation == 'location':
         tipo = 'localizacao'
         operacao = obj.lock_location
@@ -265,6 +312,7 @@ def register():
     bpy.utils.register_class(RemoverModificadores)
     bpy.utils.register_class(RemoverModificadoresAtivo)
     bpy.utils.register_class(RemoverModificadoresSelecionados)
+    bpy.utils.register_class(CopiarModificadores)
     bpy.utils.register_class(BloquearLocalizacao)
     bpy.utils.register_class(BloquearRotacao)
     bpy.utils.register_class(BloquearEscala)
@@ -276,6 +324,7 @@ def unregister():
     bpy.utils.unregister_class(RemoverModificadores)
     bpy.utils.unregister_class(RemoverModificadoresAtivo)
     bpy.utils.unregister_class(RemoverModificadoresSelecionados)
+    bpy.utils.unregister_class(CopiarModificadores)
     bpy.utils.unregister_class(BloquearLocalizacao)
     bpy.utils.unregister_class(BloquearRotacao)
     bpy.utils.unregister_class(BloquearEscala)
