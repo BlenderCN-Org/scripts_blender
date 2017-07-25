@@ -20,7 +20,7 @@ class ToolsPanel(bpy.types.Panel):
         obj = context.object
 
         row = layout.row()
-        row.label(text="O objeto ativo é: " + obj.name)
+        row.label(text="O objeto ativo:  {}  ( {} )".format(obj.name, obj.type))
 
         row = layout.row()
         row.label(text="Trocar:")
