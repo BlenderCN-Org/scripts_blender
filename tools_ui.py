@@ -54,18 +54,21 @@ class ToolsPanel(bpy.types.Panel):
         row.operator("object.shade_smooth", text="Smooth")
         row.operator("object.shade_flat", text="Flat")
 
-        mesh = obj.data  # captura do mesh do ativo
+        # propriedades ref. objeto do tipo MESH
+        if obj.type == "MESH":
+            mesh = obj.data  # captura do mesh do ativo
 
-        split = layout.box().split()
+            split = layout.box().split()
 
-        col = split.column()
-        col.prop(mesh, "use_auto_smooth")
-        sub = col.column()
-        sub.active = mesh.use_auto_smooth and not mesh.has_custom_normals
-        sub.prop(mesh, "auto_smooth_angle", text="Angle")
+            col = split.column()
+            col.prop(mesh, "use_auto_smooth")
+            sub = col.column()
+            sub.active = mesh.use_auto_smooth and not mesh.has_custom_normals
+            sub.prop(mesh, "auto_smooth_angle", text="Angle")
 
-        split.prop(mesh, "show_double_sided")
+            split.prop(mesh, "show_double_sided")
 
+        # PARENT
         row = layout.row()
         row.prop(obj, "parent", text="Pai")
 
