@@ -1,5 +1,4 @@
 import bpy
-from pyasn1.type import constraint
 
 """ Para debugar o script, execute o Blender pelo terminal. 
  As docstring dos operators são visíveis como dicas(tag) blender. """
